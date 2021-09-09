@@ -44,6 +44,6 @@ jobs:
           build-args: ANSIBLE_VERSION=${{env.ANSIBLE_VERSION}}
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:${{ env.ANSIBLE_VERSION }}
+          tags: ${{ env.DOCKER_IMAGE }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
