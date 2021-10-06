@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ansible_version: [2.9.6, 2.10]
+        ansible_version: [2.9.6, 2.10.14]
 
     steps:
       - name: Checkout
