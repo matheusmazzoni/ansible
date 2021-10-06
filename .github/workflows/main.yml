@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - "main"
-env:
-  ANSIBLE_VERSION: 2.9.6
-  DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/ansible
 jobs:
-  cicd:
-    name: CI/CD
+  build-and-push:
+    name: Build and Push Image docker
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ansible_versions: [2.9.6, 2.10]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,6 +23,7 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+            
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
@@ -38,12 +40,13 @@ jobs:
         id: docker_build
         env:
           DOCKER_BUILDKIT: '1'
+          DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/ansible
         uses: docker/build-push-action@v2
         with:
           file: Dockerfile
-          build-args: ANSIBLE_VERSION=${{env.ANSIBLE_VERSION}}
+          build-args: ANSIBLE_VERSION=${{ matrix.ansible_version }}
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:latest
+          tags: ${{ env.DOCKER_IMAGE }}:${{ matrix.ansible_version }},${{ env.DOCKER_IMAGE }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
